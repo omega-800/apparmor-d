@@ -1,0 +1,100 @@
+diff --git a/nixos/modules/security/apparmor.nix b/nixos/modules/security/apparmor.nix
+index a4b3807e4..4a12f1629 100644
+--- a/nixos/modules/security/apparmor.nix
++++ b/nixos/modules/security/apparmor.nix
+@@ -3,21 +3,28 @@
+ with lib;
+ 
+ let
+-  inherit (builtins) attrNames head map match readFile;
++  inherit (builtins) attrNames map match;
+   inherit (lib) types;
+   inherit (config.environment) etc;
+   cfg = config.security.apparmor;
+-  mkDisableOption = name: mkEnableOption name // {
+-    default = true;
+-    example = false;
+-  };
+-  enabledPolicies = filterAttrs (n: p: p.enable) cfg.policies;
++  enabledPolicies = filterAttrs (n: p: p.state != "disable") cfg.policies;
++  mapNewStateOption = config:
++    if !(getAttrFromPath [ "security" "apparmor" "enable" ] config) then
++      "disable"
++    else if (getAttrFromPath [ "security" "apparmor" "enforce" ] config) then
++      "enforce"
++    else
++      "complain";
+ in
+ 
+ {
+   imports = [
+     (mkRemovedOptionModule [ "security" "apparmor" "confineSUIDApplications" ] "Please use the new options: `security.apparmor.policies.<policy>.enable'.")
+     (mkRemovedOptionModule [ "security" "apparmor" "profiles" ] "Please use the new option: `security.apparmor.policies'.")
++
++    #(mkChangedOptionModule [ "security" "apparmor" "enable" ] [ "security" "apparmor" "state" ] mapNewStateOption)
++    #(mkChangedOptionModule [ "security" "apparmor" "enforce" ] [ "security" "apparmor" "state" ] mapNewStateOption)
++
+     apparmor/includes.nix
+     apparmor/profiles.nix
+   ];
+@@ -25,7 +32,7 @@ in
+   options = {
+     security.apparmor = {
+       enable = mkEnableOption ''
+-        the AppArmor Mandatory Access Control system.
++        Enables the AppArmor Mandatory Access Control system.
+ 
+         If you're enabling this module on a running system,
+         note that a reboot will be required to activate AppArmor in the kernel.
+@@ -45,15 +52,28 @@ in
+         description = ''
+           AppArmor policies.
+         '';
+-        type = types.attrsOf (types.submodule ({ name, config, ... }: {
++        type = types.attrsOf (types.submodule ({ name, config, options, ... }: {
+           options = {
+-            enable = mkDisableOption "loading of the profile into the kernel";
+-            enforce = mkDisableOption "enforcing of the policy or only complain in the logs";
++            state = mkOption {
++              description =
++                "The state of the profile as applied to the system by nix";
++              type = types.enum [ "disable" "complain" "enforce" ];
++              default = "complain";
++            };
++
+             profile = mkOption {
+-              description = "The policy of the profile.";
++              description = "The policy of the profile. Incompatible with path.";
+               type = types.lines;
+-              apply = pkgs.writeText name;
+             };
++
++            path = mkOption {
++              type = types.nullOr types.path;
++              default = null;
++              description = "A path of a profile to include. Incompatible with profile.";
++              apply = p: assert (assertMsg ((p != null && !options.profile.isDefined) || (p == null && options.profile.isDefined))
++                "`security.apparmor.policies.\"${name}\"` must define exactly one of either path or profile.");
++                  (if (p != null) then p else (pkgs.writeText name config.profile));
++             };
+           };
+         }));
+         default = {};
+@@ -108,7 +128,7 @@ in
+     environment.etc."apparmor.d".source = pkgs.linkFarm "apparmor.d" (
+       # It's important to put only enabledPolicies here and not all cfg.policies
+       # because aa-remove-unknown reads profiles from all /etc/apparmor.d/*
+-      mapAttrsToList (name: p: { inherit name; path = p.profile; }) enabledPolicies ++
++      mapAttrsToList (name: p: { inherit name; path = p.path; }) enabledPolicies ++
+       mapAttrsToList (name: path: { inherit name path; }) cfg.includes
+     );
+     environment.etc."apparmor/parser.conf".text = ''
+@@ -187,7 +207,7 @@ in
+           xargs --verbose --no-run-if-empty --delimiter='\n' \
+           kill
+         '';
+-        commonOpts = p: "--verbose --show-cache ${optionalString (!p.enforce) "--complain "}${p.profile}";
++        commonOpts = p: "--verbose --show-cache ${optionalString (p.state == "complain") "--complain "}${p.path}";
+         in {
+         Type = "oneshot";
+         RemainAfterExit = "yes";

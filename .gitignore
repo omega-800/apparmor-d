@@ -1,0 +1,5 @@
+*.qcow2
+.null-ls*
+result
+*.sh
+core
