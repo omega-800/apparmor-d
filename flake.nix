@@ -1,9 +1,15 @@
 {
   description = "apparmor.d profiles";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    aa-alias-manager = {
+      url = "github:LordGrimmauld/aa-alias-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 
-  outputs = { self, nixpkgs, ... }@inputs:
+  outputs = { self, nixpkgs, aa-alias-manager, ... }@inputs:
     let
       systems = [ "x86_64-linux" "aarch64-linux" "i686-linux" ];
 
@@ -20,7 +26,10 @@
         import nixpkgs {
           inherit system;
           overlays = [
-            (final: prev: { inherit (self.packages.${system}) apparmor-d; })
+            (final: prev: {
+              inherit (self.packages.${system}) apparmor-d;
+              inherit (aa-alias-manager.packages.${system}) desk-which;
+            })
           ];
         };
 

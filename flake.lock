@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "aa-alias-manager": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1729710796,
+        "narHash": "sha256-K/MHKrTWwIH1M9aZX5qD2uDGeg7mBXsFzn7LaMeL6Z0=",
+        "owner": "LordGrimmauld",
+        "repo": "aa-alias-manager",
+        "rev": "3afd2fb056d2c5f0c4f5374a64e6166a8b7a0452",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LordGrimmauld",
+        "repo": "aa-alias-manager",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1729413321,
@@ -16,26 +36,10 @@
         "type": "github"
       }
     },
-    "nixpkgs-stable": {
-      "locked": {
-        "lastModified": 1729449015,
-        "narHash": "sha256-Gf04dXB0n4q0A9G5nTGH3zuMGr6jtJppqdeljxua1fo=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "89172919243df199fe237ba0f776c3e3e3d72367",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-24.05",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs",
-        "nixpkgs-stable": "nixpkgs-stable"
+        "aa-alias-manager": "aa-alias-manager",
+        "nixpkgs": "nixpkgs"
       }
     }
   },
