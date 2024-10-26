@@ -1,13 +1,31 @@
-{ pkgs, lib, config, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   inherit (lib)
-    mkEnableOption mkOption types mkIf filterAttrs mapAttrsToList genAttrs
-    mkForce mkDefault;
+    mkEnableOption
+    mkOption
+    types
+    mkIf
+    filterAttrs
+    mapAttrsToList
+    genAttrs
+    mkForce
+    mkDefault
+    ;
   inherit (builtins) readDir hasAttr mapAttrs;
   cfg = config.security.apparmor-d;
-  allProfileNames = mapAttrsToList (n: v: n) (filterAttrs (n: v: v == "regular")
-    (readDir "${pkgs.apparmor-d}/etc/apparmor.d"));
-  profileStatus = types.enum [ "disable" "complain" "enforce" ];
+  allProfileNames = mapAttrsToList (n: v: n) (
+    filterAttrs (n: v: v == "regular") (readDir "${pkgs.apparmor-d}/etc/apparmor.d")
+  );
+  profileStatus = types.enum [
+    "disable"
+    "complain"
+    "enforce"
+  ];
 in
 {
   options.security.apparmor-d = {
@@ -34,19 +52,14 @@ in
       policies =
         if (cfg.statusAll != "disable") then
           (genAttrs allProfileNames (name: {
-            state = mkDefault (if (hasAttr name cfg.profiles) then
-              cfg.profiles.${name}
-            else
-              cfg.statusAll);
+            state = mkDefault (if (hasAttr name cfg.profiles) then cfg.profiles.${name} else cfg.statusAll);
             path = "${pkgs.apparmor-d}/etc/apparmor.d/${name}";
           }))
         else
-          (mapAttrs
-            (name: state: {
-              inherit state;
-              path = "${pkgs.apparmor-d}/etc/apparmor.d/${name}";
-            })
-            cfg.profiles);
+          (mapAttrs (name: state: {
+            inherit state;
+            path = "${pkgs.apparmor-d}/etc/apparmor.d/${name}";
+          }) cfg.profiles);
     };
     environment = {
       systemPackages = [ pkgs.apparmor-d ];

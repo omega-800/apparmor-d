@@ -1,4 +1,5 @@
-{ modulesPath, pkgs, ... }: {
+{ modulesPath, pkgs, ... }:
+{
   imports = [ "${modulesPath}/virtualisation/qemu-vm.nix" ];
 
   security = {
@@ -6,7 +7,9 @@
     apparmor-d = {
       enable = true;
       # statusAll = "complain";
-      profiles = { whoami = "enforce"; };
+      profiles = {
+        whoami = "enforce";
+      };
     };
   };
 
@@ -19,7 +22,11 @@
     root.initialPassword = "test";
   };
 
-  environment.systemPackages = with pkgs; [ lynis vulnix vim ];
+  environment.systemPackages = with pkgs; [
+    lynis
+    vulnix
+    vim
+  ];
   boot.loader.grub.devices = [ "/dev/sda" ];
   system.stateVersion = "24.05";
 }

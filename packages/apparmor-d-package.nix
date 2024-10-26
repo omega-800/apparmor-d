@@ -1,4 +1,10 @@
-{ system, stdenv, fetchFromGitHub, go, lib }:
+{
+  system,
+  stdenv,
+  fetchFromGitHub,
+  go,
+  lib,
+}:
 stdenv.mkDerivation {
   pname = "apparmor-d";
   version = "1.0.0";
@@ -25,12 +31,17 @@ stdenv.mkDerivation {
   meta = {
     homepage = "https://apparmor.pujol.io";
     description = "Collection of apparmor profiles";
-    licenses = with lib.licenses; [ gpl2 gpl2Only ];
-    maintainers = [{
-      github = "omega-800";
-      githubId = 50942480;
-      name = "omega";
-    }];
+    licenses = with lib.licenses; [
+      gpl2
+      gpl2Only
+    ];
+    maintainers = [
+      {
+        github = "omega-800";
+        githubId = 50942480;
+        name = "omega";
+      }
+    ];
     platforms = [ system ];
   };
 }
