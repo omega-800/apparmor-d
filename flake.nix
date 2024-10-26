@@ -28,7 +28,7 @@
           overlays = [
             (final: prev: {
               inherit (self.packages.${system}) apparmor-d;
-              inherit (aa-alias-manager.packages.${system}) desk-which;
+              inherit (aa-alias-manager.packages.${system}) aa-alias-manager;
             })
           ];
         };
@@ -70,6 +70,8 @@
       nixosModules = apparmorDModule;
       packages = forEachSystem apparmorDPackage;
       apps = forEachSystem testVmApp;
+      formatter = forEachSystem
+        (system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
       #TODO: 
       # checks = { }; 
     };
