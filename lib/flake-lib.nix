@@ -1,18 +1,14 @@
 { inputs }:
-let
-  inherit (inputs) nixpkgs self;
-in
-rec {
-  patchedNixpkgs =
-    system:
+let inherit (inputs) nixpkgs self;
+in rec {
+  patchedNixpkgs = system:
     nixpkgs.legacyPackages.${system}.applyPatches {
       name = "nixpkgs-patched";
       src = inputs.nixpkgs;
       patches = [ ../modules/apparmor-module.patch ];
     };
 
-  patchedPkgs =
-    system:
+  patchedPkgs = system:
     import nixpkgs {
       inherit system;
       overlays = [
@@ -23,46 +19,42 @@ rec {
       ];
     };
 
-  mkPatchedNixosSystem =
-    system:
+  mkPatchedNixosSystem = system:
     (import ((patchedNixpkgs system) + "/nixos/lib/eval-config.nix")) {
       inherit system;
       specialArgs = {
         inherit inputs system;
         pkgs = patchedPkgs system;
       };
-      modules = [
-        ../hosts/test-host.nix
-        self.nixosModules.apparmor-d
-      ];
+      modules = [ ../hosts/test-host.nix self.nixosModules.apparmor-d ];
     };
 
   mkApparmorDModule = rec {
-    apparmor-d =
-      { ... }:
-      {
-        imports = [ ../modules/apparmor-d-module.nix ];
-      };
+    apparmor-d = { ... }: { imports = [ ../modules/apparmor-d-module.nix ]; };
     default = apparmor-d;
   };
 
   mkApparmorDPackage = system: rec {
-    apparmor-d = (import nixpkgs { inherit system; }).callPackage ../packages/apparmor-d-package.nix {
-      inherit system;
-    };
+    apparmor-d = (import nixpkgs { inherit system; }).callPackage
+      ../packages/apparmor-d-package.nix
+      { inherit system; };
     default = apparmor-d;
   };
 
   mkTestVmApp = system: rec {
     test-vm = {
       type = "app";
-      program = "${self.nixosConfigurations.${system}.config.system.build.vm}/bin/run-nixos-vm";
+      program = "${
+          self.nixosConfigurations.${system}.config.system.build.vm
+        }/bin/run-nixos-vm";
     };
     default = test-vm;
   };
 
   mkDevShell = system: rec {
     apparmor-d = nixpkgs.legacyPackages.${system}.mkShell {
+      inherit (self.checks.${system}.pre-commit-check) shellHook;
+      buildInputs = self.checks.${system}.pre-commit-check.enabledPackages;
       packages = with nixpkgs.legacyPackages.${system}; [
         nil
         nixfmt-rfc-style
@@ -73,6 +65,12 @@ rec {
 
   mkFormatter = system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style;
 
-  # TODO: 
-  mkChecks = system: { };
+  # TODO:check for apparmor-d profiles validity as well as 
+  # compatibility between different versions 
+  mkChecks = system: {
+    pre-commit-check = inputs.pre-commit-hooks.lib.${system}.run {
+      src = ./.;
+      hooks = { nixpkgs-fmt.enable = true; };
+    };
+  };
 }
