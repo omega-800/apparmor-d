@@ -7,11 +7,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1729854915,
-        "narHash": "sha256-yo+EaXZgc3BNYgoQZ/ixrJj6mllwn2YYdCtxS7T4khc=",
+        "lastModified": 1729944260,
+        "narHash": "sha256-2zAJo/qGsc8GqXQeXgsYNS7LJHnOG5noXEa+/vZgiJ8=",
         "owner": "LordGrimmauld",
         "repo": "aa-alias-manager",
-        "rev": "23a0bb9ac822c80aefba4211b426d0550769f87a",
+        "rev": "9cbcc6e393f675e90916954fe68fd211f96f5254",
         "type": "github"
       },
       "original": {

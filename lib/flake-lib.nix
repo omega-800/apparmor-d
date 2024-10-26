@@ -1,14 +1,18 @@
 { inputs }:
-let inherit (inputs) nixpkgs self;
-in rec {
-  patchedNixpkgs = system:
+let
+  inherit (inputs) nixpkgs self;
+in
+rec {
+  patchedNixpkgs =
+    system:
     nixpkgs.legacyPackages.${system}.applyPatches {
       name = "nixpkgs-patched";
       src = inputs.nixpkgs;
       patches = [ ../modules/apparmor-module.patch ];
     };
 
-  patchedPkgs = system:
+  patchedPkgs =
+    system:
     import nixpkgs {
       inherit system;
       overlays = [
@@ -19,34 +23,38 @@ in rec {
       ];
     };
 
-  mkPatchedNixosSystem = system:
+  mkPatchedNixosSystem =
+    system:
     (import ((patchedNixpkgs system) + "/nixos/lib/eval-config.nix")) {
       inherit system;
       specialArgs = {
         inherit inputs system;
         pkgs = patchedPkgs system;
       };
-      modules = [ ../hosts/test-host.nix self.nixosModules.apparmor-d ];
+      modules = [
+        ../hosts/test-host.nix
+        self.nixosModules.apparmor-d
+      ];
     };
 
   mkApparmorDModule = rec {
-    apparmor-d = { ... }: { imports = [ ../modules/apparmor-d-module.nix ]; };
+    apparmor-d =
+      { ... }:
+      {
+        imports = [ ../modules/apparmor-d-module.nix ];
+      };
     default = apparmor-d;
   };
 
   mkApparmorDPackage = system: rec {
-    apparmor-d = (import nixpkgs { inherit system; }).callPackage
-      ../packages/apparmor-d-package.nix
-      { inherit system; };
+    apparmor-d = nixpkgs.legacyPackages.${system}.callPackage ../packages/apparmor-d-package.nix { };
     default = apparmor-d;
   };
 
   mkTestVmApp = system: rec {
     test-vm = {
       type = "app";
-      program = "${
-          self.nixosConfigurations.${system}.config.system.build.vm
-        }/bin/run-nixos-vm";
+      program = "${self.nixosConfigurations.${system}.config.system.build.vm}/bin/run-nixos-vm";
     };
     default = test-vm;
   };
@@ -70,7 +78,7 @@ in rec {
   mkChecks = system: {
     pre-commit-check = inputs.pre-commit-hooks.lib.${system}.run {
       src = ./.;
-      hooks = { nixpkgs-fmt.enable = true; };
+      hooks.nixpkgs-fmt.enable = true;
     };
   };
 }

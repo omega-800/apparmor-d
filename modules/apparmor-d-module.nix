@@ -15,6 +15,7 @@ let
     genAttrs
     mkForce
     mkDefault
+    getExe
     ;
   inherit (builtins) readDir hasAttr mapAttrs;
   cfg = config.security.apparmor-d;
@@ -26,6 +27,7 @@ let
     "complain"
     "enforce"
   ];
+  aliasDir = "/run/aliases.d";
 in
 {
   options.security.apparmor-d = {
@@ -48,6 +50,10 @@ in
 
   config = mkIf cfg.enable {
     security.apparmor = {
+      includes."tunables/alias.d/store" = ''
+        include if exists "${aliasDir}"
+      '';
+
       packages = [ pkgs.apparmor-d ];
       policies =
         if (cfg.statusAll != "disable") then
@@ -67,6 +73,19 @@ in
         Optimize=compress-fast
       '';
     };
+
+    systemd.services.aa-alias-setup = {
+      wantedBy = [ "apparmor.service" ];
+      path = [
+        config.nix.package
+      ]; # respect the users choice to use alternative nix implementations
+
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${getExe pkgs.aa-alias-manager} -o ${aliasDir}";
+      };
+    };
+
     # provide alternative boot entry in case apparmor rules break things
     specialisation.disabledApparmorD.configuration = {
       security.apparmor-d.enable = mkForce false;

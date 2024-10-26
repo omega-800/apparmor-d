@@ -1,5 +1,4 @@
 {
-  system,
   stdenv,
   fetchFromGitHub,
   go,
@@ -28,6 +27,11 @@ stdenv.mkDerivation {
     DESTDIR=$out PKGNAME=apparmor-d make install
   '';
 
+  subPackages = [
+    "cmd/prebuild"
+    "cmd/aa-log"
+  ];
+
   meta = {
     homepage = "https://apparmor.pujol.io";
     description = "Collection of apparmor profiles";
@@ -42,6 +46,7 @@ stdenv.mkDerivation {
         name = "omega";
       }
     ];
-    platforms = [ system ];
+    mainProgram = "aa-log";
+    platforms = lib.platforms.linux;
   };
 }
