@@ -16,6 +16,8 @@ let
     mkForce
     mkDefault
     getExe
+    attrNames
+    concatMapStringsSep
     ;
   inherit (builtins) readDir hasAttr mapAttrs;
   cfg = config.security.apparmor-d;
@@ -46,13 +48,21 @@ in
       default = { };
       description = "Set of apparmor profiles to include from apparmor.d";
     };
+
+    enableAliases = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Enables usage of aa-alias-manager for profile path alias generation";
+    };
   };
 
   config = mkIf cfg.enable {
     security.apparmor = {
-      includes."tunables/alias.d/store" = ''
-        include if exists "${aliasDir}"
-      '';
+      includes = mkIf cfg.enableAliases {
+        "tunables/alias.d/store" = ''
+          include if exists "${aliasDir}"
+        '';
+      };
 
       packages = [ pkgs.apparmor-d ];
       policies =
@@ -67,6 +77,7 @@ in
             path = "${pkgs.apparmor-d}/etc/apparmor.d/${name}";
           }) cfg.profiles);
     };
+
     environment = {
       systemPackages = [ pkgs.apparmor-d ];
       etc."apparmor/parser.conf".text = ''
@@ -74,7 +85,7 @@ in
       '';
     };
 
-    systemd.services.aa-alias-setup = {
+    systemd.services.aa-alias-setup = mkIf cfg.enableAliases {
       wantedBy = [ "apparmor.service" ];
       path = [
         config.nix.package
@@ -82,7 +93,29 @@ in
 
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = "${getExe pkgs.aa-alias-manager} -o ${aliasDir}";
+        ExecStart = "${getExe pkgs.aa-alias-manager} -o ${aliasDir} -p ${
+          pkgs.writeText "aa-alias-patterns.json"
+            # json
+            ''
+              [
+                {
+                  "name": "bin",
+                  "target": "/bin",
+                  "pattern": [
+                    "bin",
+                    "libexec",
+                    "sbin",
+                    "usr/bin",
+                    "usr/sbin"
+                  ],
+                  "individual": true,
+                  "only_exe": true,
+                  "disallowed_strings": [ "!" ],
+                  "only_include": [ ${concatMapStringsSep (n: ''"${n}"'') ", " (attrNames cfg.profiles)} ]
+                }
+              ]
+            ''
+        }";
       };
     };
 

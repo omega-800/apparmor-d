@@ -1,15 +1,19 @@
 { modulesPath, pkgs, ... }:
 {
-  imports = [ "${modulesPath}/virtualisation/qemu-vm.nix" ];
+  imports = [
+    "${modulesPath}/virtualisation/qemu-vm.nix"
+    ./apparmor-d-all.nix
+  ];
 
   security = {
     apparmor.enable = true;
     apparmor-d = {
       enable = true;
-      # statusAll = "complain";
-      profiles = {
-        whoami = "enforce";
-      };
+      statusAll = "complain";
+      # enableAliasing = false;
+      # profiles = {
+      #   whoami = "enforce";
+      # };
     };
   };
 
