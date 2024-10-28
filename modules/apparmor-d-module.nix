@@ -86,10 +86,18 @@ in
     };
 
     systemd.services.aa-alias-setup = mkIf cfg.enableAliases {
+      after = [ "local-fs.target" ];
+      before = [ "apparmor.service" ];
       wantedBy = [ "apparmor.service" ];
       path = [
         config.nix.package
       ]; # respect the users choice to use alternative nix implementations
+
+      unitConfig = {
+        Description = "Initialize alias rules required for AppArmor policies";
+        DefaultDependencies = "no";
+        ConditionSecurity = "apparmor";
+      };
 
       serviceConfig = {
         Type = "oneshot";
