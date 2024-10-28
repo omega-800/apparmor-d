@@ -3,6 +3,7 @@
   fetchFromGitHub,
   go,
   lib,
+  nix-update-script,
 }:
 stdenv.mkDerivation {
   pname = "apparmor-d";
@@ -16,6 +17,7 @@ stdenv.mkDerivation {
   };
 
   # doCheck = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
+  passthru.updateScript = nix-update-script { };
 
   nativeBuildInputs = [ go ];
 
@@ -26,7 +28,7 @@ stdenv.mkDerivation {
   '';
 
   installPhase = ''
-    DESTDIR=$out PKGNAME=apparmor-d make install
+    DISTRIBUTION=nixos DESTDIR=$out PKGNAME=apparmor-d make install
   '';
 
   subPackages = [
