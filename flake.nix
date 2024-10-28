@@ -7,12 +7,21 @@
       url = "github:LordGrimmauld/aa-alias-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-github-actions = {
+      url = "github:nix-community/nix-github-actions";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    pre-commit-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { nixpkgs, ... }@inputs:
+    inputs:
     let
       inherit (import ./lib/flake-lib.nix { inherit inputs; })
+        forEachSystem
         mkTestVmApp
         mkFormatter
         mkApparmorDModule
@@ -20,22 +29,17 @@
         mkDevShell
         mkChecks
         mkPatchedNixosSystem
+        mkGithubActions
         ;
-
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "i686-linux"
-      ];
-      forEachSystem = definitions: nixpkgs.lib.genAttrs systems definitions;
     in
     {
+      checks = forEachSystem mkChecks;
       nixosConfigurations = forEachSystem mkPatchedNixosSystem;
       nixosModules = mkApparmorDModule;
       packages = forEachSystem mkApparmorDPackage;
       apps = forEachSystem mkTestVmApp;
       devShells = forEachSystem mkDevShell;
       formatter = forEachSystem mkFormatter;
-      checks = forEachSystem mkChecks;
+      githubActions = mkGithubActions;
     };
 }

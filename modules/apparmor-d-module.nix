@@ -68,7 +68,7 @@ in
       policies =
         if (cfg.statusAll != "disable") then
           (genAttrs allProfileNames (name: {
-            state = mkDefault (if (hasAttr name cfg.profiles) then cfg.profiles.${name} else cfg.statusAll);
+            state = mkDefault (if cfg.profiles ? ${name} then cfg.profiles.${name} else cfg.statusAll);
             path = "${pkgs.apparmor-d}/etc/apparmor.d/${name}";
           }))
         else
@@ -119,7 +119,7 @@ in
                   "individual": true,
                   "only_exe": true,
                   "disallowed_strings": [ "!" ],
-                  "only_include": [ ${concatMapStringsSep (n: ''"${n}"'') ", " (attrNames cfg.profiles)} ]
+                  "only_include": [ ${concatMapStringsSep ", " (n: ''"${n}"'') (attrNames cfg.profiles)} ]
                 }
               ]
             ''

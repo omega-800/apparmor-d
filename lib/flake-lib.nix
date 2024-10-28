@@ -3,24 +3,33 @@ let
   inherit (inputs) nixpkgs self;
 in
 rec {
+  systems = [
+    # TODO: cross platform builds
+    "x86_64-linux" # "aarch64-linux" "i686-linux"
+  ];
+
+  forEachSystem = definitions: nixpkgs.lib.genAttrs systems definitions;
+
   patchedNixpkgs =
     system:
     nixpkgs.legacyPackages.${system}.applyPatches {
       name = "nixpkgs-patched";
-      src = inputs.nixpkgs;
+      src = nixpkgs;
       patches = [ ../modules/apparmor-module.patch ];
     };
+
+  mkOverlays = system: [
+    (final: prev: {
+      inherit (self.packages.${system}) apparmor-d;
+      inherit (inputs.aa-alias-manager.packages.${system}) aa-alias-manager;
+    })
+  ];
 
   patchedPkgs =
     system:
     import nixpkgs {
       inherit system;
-      overlays = [
-        (final: prev: {
-          inherit (self.packages.${system}) apparmor-d;
-          inherit (inputs.aa-alias-manager.packages.${system}) aa-alias-manager;
-        })
-      ];
+      overlays = mkOverlays system;
     };
 
   mkPatchedNixosSystem =
@@ -34,6 +43,11 @@ rec {
       modules = [
         ../hosts/test-host.nix
         self.nixosModules.apparmor-d
+        # {
+        #   nixpkgs.config.allowUnsupportedSystem = true;
+        #   nixpkgs.hostPlatform.system = system;
+        #   nixpkgs.buildPlatform.system = "x86_64-linux";
+        # }
       ];
     };
 
@@ -75,10 +89,54 @@ rec {
 
   # TODO:check for apparmor-d profiles validity as well as 
   # compatibility between different versions 
-  mkChecks = system: {
-    pre-commit-check = inputs.pre-commit-hooks.lib.${system}.run {
-      src = ./.;
-      hooks.nixpkgs-fmt.enable = true;
-    };
+  mkChecks =
+    system:
+    let
+      inherit (nixpkgs.legacyPackages.${system}) nixosTest lib;
+    in
+    {
+      pre-commit-check = inputs.pre-commit-hooks.lib.${system}.run {
+        src = ./.;
+        hooks.nixpkgs-fmt.enable = true;
+      };
+    }
+    // (lib.mapAttrs' (
+      n: v:
+      let
+        name = lib.removeSuffix ".nix" n;
+      in
+      lib.nameValuePair name (
+        (import ((patchedNixpkgs system) + "/nixos/lib") { }).runTest (
+          {
+            hostPkgs = patchedPkgs system;
+            imports = [
+              {
+                inherit name;
+                meta.maintainers = [
+                  {
+                    github = "omega-800";
+                    githubId = 50942480;
+                    name = "omega";
+                  }
+                ];
+                nodes.test =
+                  { ... }:
+                  {
+                    imports = [
+                      ../hosts/test-host.nix
+                      self.nixosModules.apparmor-d
+                    ];
+                    nixpkgs.overlays = mkOverlays system;
+                  };
+              }
+            ];
+          }
+          // (import ../checks/${n})
+        )
+      )
+    ) (builtins.readDir ../checks));
+
+  mkGithubActions = inputs.nix-github-actions.lib.mkGithubMatrix {
+    checks = nixpkgs.lib.getAttrs [ "x86_64-linux" ] (self.checks // self.packages);
   };
 }

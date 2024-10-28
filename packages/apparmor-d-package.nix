@@ -15,6 +15,8 @@ stdenv.mkDerivation {
     hash = "sha256-z0Jo7hK/Gu/DMuJ/WbYZK3aq5+s9vCLxxCR++bpkC0Y=";
   };
 
+  # doCheck = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
+
   nativeBuildInputs = [ go ];
 
   patches = [ ./apparmor-d-package.patch ];
