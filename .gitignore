@@ -3,3 +3,4 @@
 result
 *.sh
 core
+.pre-commit-config.yaml

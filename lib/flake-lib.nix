@@ -92,7 +92,7 @@ rec {
   mkChecks =
     system:
     let
-      inherit (nixpkgs.legacyPackages.${system}) nixosTest lib;
+      inherit (nixpkgs.legacyPackages.${system}) lib;
     in
     {
       pre-commit-check = inputs.pre-commit-hooks.lib.${system}.run {
@@ -100,43 +100,48 @@ rec {
         hooks.nixpkgs-fmt.enable = true;
       };
     }
-    // (lib.mapAttrs' (
-      n: v:
-      let
-        name = lib.removeSuffix ".nix" n;
-      in
-      lib.nameValuePair name (
-        (import ((patchedNixpkgs system) + "/nixos/lib") { }).runTest (
-          {
-            hostPkgs = patchedPkgs system;
-            imports = [
-              {
-                inherit name;
-                meta.maintainers = [
-                  {
-                    github = "omega-800";
-                    githubId = 50942480;
-                    name = "omega";
-                  }
-                ];
-                nodes.test =
-                  { ... }:
-                  {
-                    imports = [
-                      ../hosts/test-host.nix
-                      self.nixosModules.apparmor-d
-                    ];
-                    nixpkgs.overlays = mkOverlays system;
-                  };
-              }
-            ];
-          }
-          // (import ../checks/${n})
+    // (lib.mapAttrs'
+      (
+        n: v:
+        let
+          name = lib.removeSuffix ".nix" n;
+        in
+        lib.nameValuePair name (
+          (import ((patchedNixpkgs system) + "/nixos/lib") { }).runTest (
+            {
+              hostPkgs = patchedPkgs system;
+              imports = [
+                {
+                  inherit name;
+                  meta.maintainers = [
+                    {
+                      github = "omega-800";
+                      githubId = 50942480;
+                      name = "omega";
+                    }
+                  ];
+                  nodes.test =
+                    { ... }:
+                    {
+                      imports = [
+                        ../hosts/test-host.nix
+                        self.nixosModules.apparmor-d
+                      ];
+                      nixpkgs.overlays = mkOverlays system;
+                    };
+                }
+              ];
+            }
+            // (import ../checks/${n})
+          )
         )
       )
-    ) (builtins.readDir ../checks));
+      (builtins.readDir ../checks));
 
   mkGithubActions = inputs.nix-github-actions.lib.mkGithubMatrix {
-    checks = nixpkgs.lib.getAttrs [ "x86_64-linux" ] (self.checks // self.packages);
+    checks = {
+      # TODO: support for more architectures
+      x86_64-linux = self.checks.x86_64-linux // self.packages.x86_64-linux;
+    };
   };
 }

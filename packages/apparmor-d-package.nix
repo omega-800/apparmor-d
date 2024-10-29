@@ -1,11 +1,12 @@
-{
-  stdenv,
-  fetchFromGitHub,
-  go,
-  lib,
-  nix-update-script,
+{ stdenv
+, buildGoModule
+, fetchFromGitHub
+, lib
+, nix-update-script
+, git
+,
 }:
-stdenv.mkDerivation {
+buildGoModule {
   pname = "apparmor-d";
   version = "1.0.0";
 
@@ -16,19 +17,26 @@ stdenv.mkDerivation {
     hash = "sha256-z0Jo7hK/Gu/DMuJ/WbYZK3aq5+s9vCLxxCR++bpkC0Y=";
   };
 
-  # doCheck = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
+  vendorHash = null;
+
+  #doCheck = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
+  doCheck = false;
+
   passthru.updateScript = nix-update-script { };
 
-  nativeBuildInputs = [ go ];
+  nativeBuildInputs = [ git ];
 
   patches = [ ./apparmor-d-package.patch ];
 
-  buildPhase = ''
-    HOME=$(pwd) make
-  '';
+  postInstall = ''
+    mkdir $out/etc
 
-  installPhase = ''
-    DISTRIBUTION=nixos DESTDIR=$out PKGNAME=apparmor-d make install
+    export DISTRIBUTION=nixos 
+    export PKGNAME=apparmor-d
+    $out/bin/prebuild 
+
+    mv .build/apparmor.d $out/etc
+    rm $out/bin/prebuild
   '';
 
   subPackages = [
@@ -43,6 +51,8 @@ stdenv.mkDerivation {
       gpl2
       gpl2Only
     ];
+    mainProgram = "aa-log";
+    platforms = lib.platforms.linux;
     maintainers = [
       {
         github = "omega-800";
@@ -50,7 +60,5 @@ stdenv.mkDerivation {
         name = "omega";
       }
     ];
-    mainProgram = "aa-log";
-    platforms = lib.platforms.linux;
   };
 }
