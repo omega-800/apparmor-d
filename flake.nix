@@ -30,6 +30,7 @@
         mkChecks
         mkPatchedNixosSystem
         mkGithubActions
+        mkLegacyPackages
         ;
     in
     {
@@ -37,6 +38,7 @@
       nixosConfigurations = forEachSystem mkPatchedNixosSystem;
       nixosModules = mkApparmorDModule;
       packages = forEachSystem mkApparmorDPackage;
+      legacyPackages = forEachSystem mkLegacyPackages;
       apps = forEachSystem mkTestVmApp;
       devShells = forEachSystem mkDevShell;
       formatter = forEachSystem mkFormatter;

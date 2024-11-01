@@ -5,7 +5,7 @@ in
 rec {
   systems = [
     # TODO: cross platform builds
-    "x86_64-linux" # "aarch64-linux" "i686-linux"
+    "x86_64-linux" # "i686-linux" "aarch64-linux"
   ];
 
   forEachSystem = definitions: nixpkgs.lib.genAttrs systems definitions;
@@ -55,7 +55,10 @@ rec {
     apparmor-d =
       { ... }:
       {
-        imports = [ ../modules/apparmor-d-module.nix ];
+        imports = [
+          ../modules/apparmor-d-module.nix
+          inputs.aa-alias-manager.nixosModules.default
+        ];
       };
     default = apparmor-d;
   };
@@ -64,6 +67,14 @@ rec {
     apparmor-d = nixpkgs.legacyPackages.${system}.callPackage ../packages/apparmor-d-package.nix { };
     default = apparmor-d;
   };
+
+  mkLegacyPackages =
+    system:
+    import nixpkgs {
+      inherit system;
+      overlays = mkOverlays system;
+      crossOverlays = mkOverlays system;
+    };
 
   mkTestVmApp = system: rec {
     test-vm = {
@@ -87,8 +98,8 @@ rec {
 
   mkFormatter = system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style;
 
-  # TODO:check for apparmor-d profiles validity as well as 
-  # compatibility between different versions 
+  # TODO:check for apparmor-d profiles validity as well as
+  # compatibility between different versions
   mkChecks =
     system:
     let

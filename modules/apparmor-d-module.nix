@@ -1,8 +1,7 @@
-{
-  pkgs,
-  lib,
-  config,
-  ...
+{ pkgs
+, lib
+, config
+, ...
 }:
 let
   inherit (lib)
@@ -15,27 +14,25 @@ let
     genAttrs
     mkForce
     mkDefault
-    getExe
     attrNames
-    concatMapStringsSep
     ;
-  inherit (builtins) readDir hasAttr mapAttrs;
+  inherit (builtins) readDir mapAttrs filter;
   cfg = config.security.apparmor-d;
-  allProfileNames = mapAttrsToList (n: v: n) (
-    filterAttrs (n: v: v == "regular") (readDir "${pkgs.apparmor-d}/etc/apparmor.d")
-  );
   profileStatus = types.enum [
     "disable"
     "complain"
     "enforce"
   ];
-  aliasDir = "/run/aliases.d";
+  allProfileNames = mapAttrsToList (n: v: n) (
+    filterAttrs (n: v: v == "regular") (readDir "${pkgs.apparmor-d}/etc/apparmor.d")
+  );
+  enabledProfiles = filter (p: (cfg.profiles.${p} or cfg.status) != "disable") allProfileNames;
 in
 {
   options.security.apparmor-d = {
     enable = mkEnableOption "Enables apparmor.d support";
 
-    statusAll = mkOption {
+    status = mkOption {
       type = profileStatus;
       default = "disable";
       description = ''
@@ -58,24 +55,56 @@ in
 
   config = mkIf cfg.enable {
     security.apparmor = {
-      includes = mkIf cfg.enableAliases {
-        "tunables/alias.d/store" = ''
-          include if exists "${aliasDir}"
-        '';
-      };
-
       packages = [ pkgs.apparmor-d ];
       policies =
-        if (cfg.statusAll != "disable") then
-          (genAttrs allProfileNames (name: {
-            state = mkDefault (if cfg.profiles ? ${name} then cfg.profiles.${name} else cfg.statusAll);
+        if (cfg.status != "disable") then
+          (genAttrs enabledProfiles (name: {
+            state = mkDefault (cfg.profiles.${name} or cfg.status);
             path = "${pkgs.apparmor-d}/etc/apparmor.d/${name}";
           }))
         else
-          (mapAttrs (name: state: {
-            inherit state;
-            path = "${pkgs.apparmor-d}/etc/apparmor.d/${name}";
-          }) cfg.profiles);
+          (mapAttrs
+            (name: state: {
+              inherit state;
+              path = "${pkgs.apparmor-d}/etc/apparmor.d/${name}";
+            })
+            (filterAttrs (n: v: v != "disable") cfg.profiles));
+      aa-alias-manager = mkIf cfg.enableAliases {
+        # aliases aren't loaded if profile path is glob, see 
+        # https://gitlab.com/apparmor/apparmor/-/issues/455
+        enable = lib.mkForce false;
+        patterns = [
+          {
+            name = "bin";
+            target = "/bin";
+            store_suffixes = [
+              "bin"
+              "libexec"
+              "sbin"
+              "usr/bin"
+              "usr/sbin"
+            ];
+            individual = true;
+            only_exe = true;
+            only_include = enabledProfiles;
+          }
+          {
+            name = "lib";
+            target = "/lib";
+            store_suffixes = [
+              "lib"
+              "libexec"
+              "lib32"
+              "lib64"
+              "usr/lib64"
+              "usr/lib32"
+              "usr/libexec"
+            ];
+            individual = true;
+            only_include = enabledProfiles;
+          }
+        ];
+      };
     };
 
     environment = {
@@ -83,48 +112,6 @@ in
       etc."apparmor/parser.conf".text = ''
         Optimize=compress-fast
       '';
-    };
-
-    systemd.services.aa-alias-setup = mkIf cfg.enableAliases {
-      after = [ "local-fs.target" ];
-      before = [ "apparmor.service" ];
-      wantedBy = [ "apparmor.service" ];
-      path = [
-        config.nix.package
-      ]; # respect the users choice to use alternative nix implementations
-
-      unitConfig = {
-        Description = "Initialize alias rules required for AppArmor policies";
-        DefaultDependencies = "no";
-        ConditionSecurity = "apparmor";
-      };
-
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${getExe pkgs.aa-alias-manager} -o ${aliasDir} -p ${
-          pkgs.writeText "aa-alias-patterns.json"
-            # json
-            ''
-              [
-                {
-                  "name": "bin",
-                  "target": "/bin",
-                  "pattern": [
-                    "bin",
-                    "libexec",
-                    "sbin",
-                    "usr/bin",
-                    "usr/sbin"
-                  ],
-                  "individual": true,
-                  "only_exe": true,
-                  "disallowed_strings": [ "!" ],
-                  "only_include": [ ${concatMapStringsSep ", " (n: ''"${n}"'') (attrNames cfg.profiles)} ]
-                }
-              ]
-            ''
-        }";
-      };
     };
 
     # provide alternative boot entry in case apparmor rules break things

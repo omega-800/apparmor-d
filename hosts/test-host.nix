@@ -9,8 +9,8 @@
     apparmor.enable = true;
     apparmor-d = {
       enable = true;
-      statusAll = "complain";
-      # enableAliasing = false;
+      status = "complain";
+      # enableAliases = true;
       # profiles = {
       #   whoami = "enforce";
       # };

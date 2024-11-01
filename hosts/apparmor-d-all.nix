@@ -1,12 +1,12 @@
 {
   security.apparmor-d.profiles = {
-    "aa-enabled" = "disable";
-    "aa-enforce" = "disable";
-    "aa-log" = "disable";
-    "aa-notify" = "disable";
-    "aa-status" = "disable";
-    "aa-teardown" = "disable";
-    "aa-unconfined" = "disable";
+    # "aa-enabled" = "disable";
+    # "aa-enforce" = "disable";
+    # "aa-log" = "disable";
+    # "aa-notify" = "disable";
+    # "aa-status" = "disable";
+    # "aa-teardown" = "disable";
+    # "aa-unconfined" = "disable";
     "abook" = "disable";
     "abstractions" = "disable";
     "accounts-daemon" = "disable";
