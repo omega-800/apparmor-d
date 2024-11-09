@@ -1,12 +1,12 @@
 {
   security.apparmor-d.profiles = {
-    # "aa-enabled" = "disable";
-    # "aa-enforce" = "disable";
-    # "aa-log" = "disable";
-    # "aa-notify" = "disable";
-    # "aa-status" = "disable";
-    # "aa-teardown" = "disable";
-    # "aa-unconfined" = "disable";
+    "aa-enabled" = "disable";
+    "aa-enforce" = "disable";
+    "aa-log" = "disable";
+    "aa-notify" = "disable";
+    "aa-status" = "disable";
+    "aa-teardown" = "disable";
+    "aa-unconfined" = "disable";
     "abook" = "disable";
     "abstractions" = "disable";
     "accounts-daemon" = "disable";
@@ -16,7 +16,6 @@
     "adb" = "disable";
     "adduser" = "disable";
     "adequate" = "disable";
-    "agetty" = "disable";
     "akonadi_akonotes_resource" = "disable";
     "akonadi_archivemail_agent" = "disable";
     "akonadi_birthdays_resource" = "disable";
@@ -114,7 +113,6 @@
     "avahi-set-host-name" = "disable";
     "badblocks" = "disable";
     "baloo" = "disable";
-    "baloorunner" = "disable";
     "baobab" = "disable";
     "biosdecode" = "disable";
     "birdtray" = "disable";
@@ -227,7 +225,6 @@
     "cpupower" = "disable";
     "cracklib-packer" = "disable";
     "crda" = "disable";
-    "cron" = "disable";
     "cron-anacron" = "disable";
     "cron-apport" = "disable";
     "cron-apt" = "disable";
@@ -276,8 +273,6 @@
     "czkawka-cli" = "disable";
     "czkawka-gui" = "disable";
     "dbus-accessibility" = "disable";
-    "dbus-session" = "disable";
-    "dbus-system" = "disable";
     "dconf" = "disable";
     "dconf-editor" = "disable";
     "dconf-service" = "disable";
@@ -319,7 +314,6 @@
     "dnscrypt-proxy" = "disable";
     "dockerd" = "disable";
     "docker-proxy" = "disable";
-    "dolphin" = "disable";
     "do-release-upgrade" = "disable";
     "downloadhelper" = "disable";
     "dpkg" = "disable";
@@ -372,8 +366,6 @@
     "exiftool" = "disable";
     "exim4" = "disable";
     "exo-compose-mail" = "disable";
-    "exo-helper" = "disable";
-    "exo-open" = "disable";
     "f3brew" = "disable";
     "f3fix" = "disable";
     "f3probe" = "disable";
@@ -408,7 +400,6 @@
     "firewall-config" = "disable";
     "firewalld" = "disable";
     "flameshot" = "disable";
-    "flatpak-app" = "disable";
     "flatpak.apparmor.d" = "disable";
     "flatpak-oci-authenticator" = "disable";
     "flatpak-portal" = "disable";
@@ -451,12 +442,10 @@
     "geoclue" = "disable";
     "ghc-pkg" = "disable";
     "gimp" = "disable";
-    "gio-launch-desktop" = "disable";
     "gio-querymodules" = "disable";
     "git" = "disable";
     "gitg" = "disable";
     "gitstatusd" = "disable";
-    "gjs-console" = "disable";
     "gkbd-keyboard-display" = "disable";
     "glib-compile-resources" = "disable";
     "glib-compile-schemas" = "disable";
@@ -468,7 +457,6 @@
     "gnome-boxes" = "disable";
     "gnome-browser-connector-host" = "disable";
     "gnome-calculator" = "disable";
-    "gnome-calculator-search-provider" = "disable";
     "gnome-calendar" = "disable";
     "gnome-characters" = "disable";
     "gnome-characters-backgroudservice" = "disable";
@@ -497,9 +485,7 @@
     "gnome-recipes" = "disable";
     "gnome-remote-desktop-daemon" = "disable";
     "gnome-session" = "disable";
-    "gnome-session-binary" = "disable";
     "gnome-session-ctl" = "disable";
-    "gnome-shell" = "disable";
     "gnome-shell-calendar-server" = "disable";
     "gnome-shell-hotplug-sniffer" = "disable";
     "gnome-shell-overrides-migration" = "disable";
@@ -566,7 +552,6 @@
     "gsd-color" = "disable";
     "gsd-datetime" = "disable";
     "gsd-disk-utility-notify" = "disable";
-    "gsd-housekeeping" = "disable";
     "gsd-keyboard" = "disable";
     "gsd-media-keys" = "disable";
     "gsd-power" = "disable";
@@ -642,7 +627,6 @@
     "hw-probe" = "disable";
     "hypnotix" = "disable";
     "hyprctl" = "disable";
-    "hyprland" = "disable";
     "hyprlock" = "disable";
     "hyprpaper" = "disable";
     "hyprpicker" = "disable";
@@ -687,7 +671,6 @@
     "jackdbus" = "disable";
     "jami-gnome" = "disable";
     "jekyll" = "disable";
-    "jgmenu" = "disable";
     "jitterentropy-rngd" = "disable";
     "jmtpfs" = "disable";
     "journalctl" = "disable";
@@ -731,18 +714,14 @@
     "kscreen_backend_launcher" = "disable";
     "kscreenlocker_greet" = "disable";
     "kscreen_osd_service" = "disable";
-    "ksmserver" = "disable";
     "ksmserver-logout-greeter" = "disable";
     "ksplashqml" = "disable";
-    "kstart" = "disable";
     "kubernetes-pause" = "disable";
     "kvm-ok" = "disable";
     "kwalletd" = "disable";
     "kwalletmanager" = "disable";
-    "kwin_wayland" = "disable";
     "kwin_wayland_wrapper" = "disable";
     "kwin_x11" = "disable";
-    "labwc" = "disable";
     "landscape-sysinfo" = "disable";
     "landscape-sysinfo.wrapper" = "disable";
     "language-validate" = "disable";
@@ -785,7 +764,6 @@
     "lxappearance" = "disable";
     "lynx" = "disable";
     "macchanger" = "disable";
-    "makepkg" = "disable";
     "mandb" = "disable";
     "mate-notification-daemon" = "disable";
     "mdevctl" = "disable";
@@ -813,7 +791,6 @@
     "modprobed-db" = "disable";
     "molly-guard" = "disable";
     "monitorix" = "disable";
-    "mono-sgen" = "disable";
     "mount" = "disable";
     "mount-cifs" = "disable";
     "mount-nfs" = "disable";
@@ -924,7 +901,6 @@
     "ollama" = "disable";
     "on-ac-power" = "disable";
     "onefetch" = "disable";
-    "openbox" = "disable";
     "openbox-session" = "disable";
     "open-link-confirmation" = "disable";
     "openvpn" = "disable";
@@ -987,13 +963,10 @@
     "pipewire-media-session" = "disable";
     "pipewire-pulse" = "disable";
     "pkcs11-register" = "disable";
-    "pkexec" = "disable";
     "pkttyagent" = "disable";
-    "plank" = "disable";
     "plasma-browser-integration-host" = "disable";
     "plasma-emojier" = "disable";
     "plasma_session" = "disable";
-    "plasmashell.apparmor.d" = "disable";
     "plasma_waitforname" = "disable";
     "plocate" = "disable";
     "plocate-build" = "disable";
@@ -1020,7 +993,6 @@
     "pulseaudio" = "disable";
     "pulseeffects" = "disable";
     "pwck" = "disable";
-    "pypr" = "disable";
     "qbittorrent" = "disable";
     "qbittorrent-nox" = "disable";
     "qdbus" = "disable";
@@ -1137,9 +1109,7 @@
     "steam-runtime-steam-remote" = "disable";
     "strawberry" = "disable";
     "strawberry-tagreader" = "disable";
-    "su" = "disable";
     "subiquity-console-conf" = "disable";
-    "sudo" = "disable";
     "sulogin" = "disable";
     "superproductivity" = "disable";
     "swaplabel" = "disable";
@@ -1234,7 +1204,6 @@
     "systemd-timesyncd" = "disable";
     "systemd-tmpfiles" = "disable";
     "systemd-tty-ask-password-agent" = "disable";
-    "systemd-udevd" = "disable";
     "systemd-update-done" = "disable";
     "systemd-update-utmp" = "disable";
     "systemd-userdbd" = "disable";
@@ -1259,7 +1228,6 @@
     "thunderbird-glxtest" = "disable";
     "thunderbird-vaapitest" = "disable";
     "timesanitycheck" = "disable";
-    "tint2" = "disable";
     "tint2conf" = "disable";
     "tomb" = "disable";
     "top" = "disable";
@@ -1276,7 +1244,6 @@
     "torbrowser-wrapper" = "disable";
     "tor-consensus-valid-after" = "disable";
     "torify" = "disable";
-    "torsocks" = "disable";
     "totem" = "disable";
     "tpacpi-bat" = "disable";
     "tracker-extract" = "disable";
@@ -1379,7 +1346,6 @@
     "w" = "disable";
     "w3m" = "disable";
     "wavemon" = "disable";
-    "waybar" = "disable";
     "wayland-session" = "disable";
     "wechat-universal" = "disable";
     "wemeet" = "disable";
@@ -1437,55 +1403,18 @@
     "xembedsniproxy" = "disable";
     "xeyes" = "disable";
     "xfce-about" = "disable";
-    "xfce-appfinder" = "disable";
     "xfce-clipman-settings" = "disable";
     "xfce-dict" = "disable";
     "xfce-mime-helper" = "disable";
     "xfce-notifyd" = "disable";
-    "xfce-panel" = "disable";
     "xfce-power-manager" = "disable";
     "xfce-screensaver" = "disable";
     "xfce-sensors" = "disable";
-    "xfce-session" = "disable";
     "xfce-terminal" = "disable";
     "xfconfd" = "disable";
-    "xfdesktop" = "disable";
     "xfpm-power-backlight-helper" = "disable";
     "xfsettingsd" = "disable";
     "xfwm" = "disable";
     "xhost" = "disable";
-    "xinit" = "disable";
-    "xinput" = "disable";
-    "xkbcomp" = "disable";
-    "xorg" = "disable";
-    "xprop" = "disable";
-    "xrandr" = "disable";
-    "xrdb" = "disable";
-    "xsane-gimp" = "disable";
-    "xsel" = "disable";
-    "xset" = "disable";
-    "xsetroot" = "disable";
-    "xsettingsd" = "disable";
-    "xtables" = "disable";
-    "xwayland" = "disable";
-    "xwaylandvideobridge" = "disable";
-    "YACReader" = "disable";
-    "YACReaderLibrary" = "disable";
-    "yadifad" = "disable";
-    "yay" = "disable";
-    "yelp" = "disable";
-    "youtube-dl" = "disable";
-    "youtube-viewer" = "disable";
-    "ytdl" = "disable";
-    "yt-dlp" = "disable";
-    "zathura" = "disable";
-    "zed" = "disable";
-    "zenmap" = "disable";
-    "zfs" = "disable";
-    "zpool" = "disable";
-    "zramctl" = "disable";
-    "zram-generator" = "disable";
-    "zsysd" = "disable";
-    "zsys-system-autosnapshot" = "disable";
   };
 }

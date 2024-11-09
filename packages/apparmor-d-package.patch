@@ -8,8 +8,8 @@ index 0a95d183..b91df965 100644
  # Common places for binaries and libraries across distributions
 -@{bin}=/{,usr/}{,s}bin
 -@{lib}=/{,usr/}lib{,exec,32,64}
-+@{lib}=/{,run/current-system/sw,nix/store/*,/home/@{user}/.nix-profile}/{,usr/}lib{,64,32,exec}
-+@{bin}=/{,run/current-system/sw,nix/store/*,/home/@{user}/.nix-profile}/{,usr/}{,s}bin
++@{lib}=/{,run/current-system/sw,nix/store/*,/home/*/.nix-profile}/{,usr/}lib{,64,32,exec}
++@{bin}=/{,run/current-system/sw,nix/store/*,/home/*/.nix-profile}/{,usr/}{,s}bin
  
  # Common places for temporary files
  @{tmp}=/tmp/ /tmp/user/@{uid}/

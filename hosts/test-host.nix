@@ -2,7 +2,8 @@
 {
   imports = [
     "${modulesPath}/virtualisation/qemu-vm.nix"
-    ./apparmor-d-all.nix
+    ./apparmor-d-broken.nix
+    ./apparmor-d-working.nix
   ];
 
   security = {
